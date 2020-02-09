@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.CannotCreateTransactionException;
 
 
 import java.util.ArrayList;
@@ -36,12 +37,29 @@ public class CountryControllerTest {
 
     @Test
     public void testReturnErrorIfCountryCodeDoesnotExist() throws Exception {
-        String code = "EGY";
+        String code = "non-existent-code";
 
         JSONObject expectedContent = new JSONObject();
         expectedContent.put("message", ErrorCode.INVALID_COUNTRY_CODE);
 
         given(service.getCountry(code)).willReturn(null);
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/" + code)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mvc.perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andExpect(MockMvcResultMatchers.content().json(expectedContent.toString()));
+    }
+
+    @Test
+    public void testReturnErrorIfDatabaseIsDown() throws Exception {
+        String code = "BHR";
+
+        JSONObject expectedContent = new JSONObject();
+        expectedContent.put("message", ErrorCode.INTERNAL_ERROR);
+
+        given(service.getCountry(code)).willThrow(CannotCreateTransactionException.class);
 
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/" + code)
                 .contentType(MediaType.APPLICATION_JSON);
