@@ -1,6 +1,5 @@
 package com.worldinfo.service.impl;
 
-import com.worldinfo.exception.NotFound;
 import com.worldinfo.model.Country;
 import com.worldinfo.repository.CountryRepository;
 import com.worldinfo.service.CountryService;
