@@ -1,11 +1,14 @@
 package com.worldinfo.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "country")
 public class Country {
@@ -23,7 +26,8 @@ public class Country {
     @NotNull
     private Integer population;
 
-    @Column(name = "life_expectancy")
-    private Float lifeExpectancy;
+    private Float life_expectancy;
 
+    @OneToMany(mappedBy = "countryCode")
+    private List<CountryLanguage> languages;
 }
